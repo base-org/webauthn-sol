@@ -3,7 +3,7 @@
 
 ## Solidity WebAuthn Authentication Assertion Verifier
 
-Webauthn-sol is a Solidity library for verifying WebAuthn authentication assertions. It builds on [Daimo's work](https://github.com/daimo-eth/p256-verifier/blob/master/src/WebAuthn.sol).
+Webauthn-sol is a Solidity library for verifying WebAuthn authentication assertions. It builds on [Daimo's WebAuthn.sol](https://github.com/daimo-eth/p256-verifier/blob/master/src/WebAuthn.sol).
 
 This library is optimized for Ethereum layer 2 rollup chains but will work on all EVM chains. Signature verification always attempts to use the [RIP-7212 precompile](https://github.com/ethereum/RIPs/blob/master/RIPS/rip-7212.md) and, if this fails, falls back to using [FreshCryptoLib](https://github.com/rdubois-crypto/FreshCryptoLib/blob/master/solidity/src/FCL_ecdsa.sol#L40).
 
