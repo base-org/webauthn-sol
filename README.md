@@ -62,3 +62,13 @@ function test() public view {
     );
 }
 ```
+
+### Calldata fee comparison
+A comparison with some other WebAuthn verifiers. 
+Numbers from Base mainnet as of February 26, 2024.
+
+| Library | Calldata size (bytes) | L1 fee wei | L1 fee cents |
+|--------|---------------|------------|--------------|
+| WebAuthn-sol | 576 | 212990146162662 | 63 |
+| [Daimo's WebAuthn.sol](https://github.com/daimo-eth/p256-verifier/blob/master/src/WebAuthn.sol) | 672 | 262592374578294 | 78 |
+| [FCL_WebAuthn.sol](https://github.com/rdubois-crypto/FreshCryptoLib/blob/master/solidity/src/FCL_Webauthn.sol) | 640 | 258426308149685 | 77 |

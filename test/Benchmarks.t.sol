@@ -16,9 +16,9 @@ interface IGasPriceOracle {
 }
 
 contract WebAuthnTest is Test {
-    FCLWrapper fclWrapper = new FCLWrapper();
-    DaimoWrapper daimoWrapper = new DaimoWrapper();
-    CBWrapper cbWrapper = new CBWrapper();
+    FCLWrapper fclWrapper;
+    DaimoWrapper daimoWrapper;
+    CBWrapper cbWrapper;
     IGasPriceOracle oracle = IGasPriceOracle(0x420000000000000000000000000000000000000F);
     bytes32 digest = sha256("hello world");
     uint256 privateKey = 0xa11ce;
@@ -33,6 +33,11 @@ contract WebAuthnTest is Test {
     uint256 constant P256_N = uint256(0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551);
 
     function setUp() public {
+        vm.createSelectFork("https://mainnet.base.org");
+        fclWrapper = new FCLWrapper();
+        daimoWrapper = new DaimoWrapper();
+        cbWrapper = new CBWrapper();
+
         WebAuthnInfo memory webAuthnInfo = Utils.getWebAuthnStruct(digest);
         (bytes32 r_, bytes32 s_) = vm.signP256(privateKey, webAuthnInfo.messageHash);
         r = uint256(r_);
@@ -133,7 +138,7 @@ contract WebAuthnTest is Test {
             WebAuthn.WebAuthnAuth({
                 authenticatorData: authenticatorData,
                 origin: "https://sign.coinbase.com",
-                crossOriginAndRemainder: "",
+                crossOriginAndRemainder: '"crossOrigin":false',
                 r: r,
                 s: s
             }),
@@ -148,7 +153,7 @@ contract WebAuthnTest is Test {
         console2.log(testName);
         console2.log("Calldata size", data.length);
         console2.log("L1 fee wei", oracle.getL1Fee(data));
-        console2.log("L1 fee cents", oracle.getL1Fee(data) * 2500 / 1e16);
+        console2.log("L1 fee cents", oracle.getL1Fee(data) * 3000 / 1e16);
     }
 }
 
