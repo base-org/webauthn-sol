@@ -1,13 +1,15 @@
 > [!IMPORTANT]  
-> This code in this repository is still under audit and is not yet recommended for production use.
+> The code in this repository and its dependencies are still under audit. It is not yet recommended for production use.
 
-This library is intended to be used to verify WebAuthn authentication assertions onchain. It builds on [Daimo's work](https://github.com/daimo-eth/p256-verifier/blob/master/src/WebAuthn.sol).
+## Solidity WebAuthn Authentication Assertion Verifier
 
-This library is optimized for Ethereum L2's but will work on all EVMs. It attempts signature verification using the [RIP-7212 precompile](https://github.com/ethereum/RIPs/blob/master/RIPS/rip-7212.md). If this fails, it falls back to using [FreshCryptoLib](https://github.com/rdubois-crypto/FreshCryptoLib/blob/master/solidity/src/FCL_ecdsa.sol#L40).
+Webauthn-sol is a Solidity library for verifying WebAuthn authentication assertions. It builds on [Daimo's work](https://github.com/daimo-eth/p256-verifier/blob/master/src/WebAuthn.sol).
+
+This library is optimized for Ethereum layer 2 rollup chains but will work on all EVM chains. Signature verification always attempts to use the [RIP-7212 precompile](https://github.com/ethereum/RIPs/blob/master/RIPS/rip-7212.md) and, if this fails, falls back to using [FreshCryptoLib](https://github.com/rdubois-crypto/FreshCryptoLib/blob/master/solidity/src/FCL_ecdsa.sol#L40).
 
 As L1 calldata is the main cost driver of L2 transactions, this library is designed to minimize calldata. Rather than requiring the full clientDataJSON to be passed, we use a template to verify against what a well formed response *should* be, leveraging the [serialization specification](https://www.w3.org/TR/webauthn/#clientdatajson-serialization). 
 
-Code excerpts below
+Code excerpts
 
 ```solidity
 struct WebAuthnAuth {
