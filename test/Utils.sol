@@ -9,7 +9,6 @@ struct WebAuthnInfo {
     bytes32 messageHash;
 }
 
-
 library Utils {
     function getWebAuthnStruct(bytes32 challenge) public pure returns (WebAuthnInfo memory) {
         string memory challengeb64url = Base64Url.encode(abi.encode(challenge));
