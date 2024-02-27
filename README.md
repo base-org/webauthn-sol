@@ -1,3 +1,6 @@
+> [!IMPORTANT]  
+> This code in this repository is still under audit and is not yet recommended for production use.
+
 This library is intended to be used to verify WebAuthn authentication assertions onchain. It builds on [Daimo's work](https://github.com/daimo-eth/p256-verifier/blob/master/src/WebAuthn.sol).
 
 This library is optimized for Ethereum L2's but will work on all EVMs. It attempts signature verification using the [RIP-7212 precompile](https://github.com/ethereum/RIPs/blob/master/RIPS/rip-7212.md). If this fails, it falls back to using [FreshCryptoLib](https://github.com/rdubois-crypto/FreshCryptoLib/blob/master/solidity/src/FCL_ecdsa.sol#L40).
