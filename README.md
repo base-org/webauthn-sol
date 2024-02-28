@@ -70,3 +70,9 @@ Numbers from Base mainnet as of February 26, 2024.
 | WebAuthn-sol | 576 | 212990146162662 | 63 |
 | [Daimo's WebAuthn.sol](https://github.com/daimo-eth/p256-verifier/blob/master/src/WebAuthn.sol) | 672 | 262592374578294 | 78 |
 | [FCL_WebAuthn.sol](https://github.com/rdubois-crypto/FreshCryptoLib/blob/master/solidity/src/FCL_Webauthn.sol) | 640 | 258426308149685 | 77 |
+
+### Developing 
+After you clone the repo, you can run the tests using Forge, from [Foundry](https://github.com/foundry-rs/foundry?tab=readme-ov-file)
+```bash
+forge test
+```
