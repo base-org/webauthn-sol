@@ -32,7 +32,6 @@ struct WebAuthnAuth {
     /// @dev The s value of secp256r1 signature
     uint256 s;
 }
-...
 
 function verify(
     bytes memory challenge,
@@ -40,55 +39,26 @@ function verify(
     WebAuthnAuth memory webAuthnAuth,
     uint256 x,
     uint256 y
-) internal view returns (bool) {
-    if (webAuthnAuth.s > P256_N_DIV_2) {
-        // guard against signature malleability
-        return false;
-    }
-
-    // 11. and 12. will be verified by the signature check
-    // 11. Verify that the value of C.type is the string webauthn.get.
-    // 12. Verify that the value of C.challenge equals the base64url encoding of options.challenge.
-    string memory challengeB64url = Base64Url.encode(challenge);
-    string memory remainder = bytes(webAuthnAuth.crossOriginAndRemainder).length == 0
-        ? ""
-        : string.concat(",", webAuthnAuth.crossOriginAndRemainder);
-    string memory clientDataJSON = string.concat(
-        // A well formed clientDataJSON will always begin with
-        // {"type":"webauthn.get","challenge":"
-        // and so we can save calldata and use this by default
-        // https://www.w3.org/TR/webauthn/#clientdatajson-serialization
-        '{"type":"webauthn.get","challenge":"',
-        challengeB64url,
-        '",',
-        '"origin":"',
-        webAuthnAuth.origin,
-        '"',
-        remainder,
-        "}"
-    );
-... 
+) internal view returns (bool) 
 ```
 
 example usage
 ```solidity
-function test() public view {
-    bytes challenge = abi.encode(0xf631058a3ba1116acce12396fad0a125b5041c43f8e15723709f81aa8d5f4ccf);
-    uint256 x = 28573233055232466711029625910063034642429572463461595413086259353299906450061;
-    uint256 y = 39367742072897599771788408398752356480431855827262528811857788332151452825281;
-    WebAuthn.WebAuthnAuth memory auth = WebAuthn.WebAuthnAuth({
-        authenticatorData: hex"49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000101",
-        origin: "http://localhost:3005",
-        crossOriginAndRemainder: "",
-        r: 43684192885701841787131392247364253107519555363555461570655060745499568693242,
-        s: 22655632649588629308599201066602670461698485748654492451178007896016452673579
-    });
-    assert(
-        WebAuthn.verify(
-            challenge, false, auth, x, y
-        )
-    );
-}
+bytes challenge = abi.encode(0xf631058a3ba1116acce12396fad0a125b5041c43f8e15723709f81aa8d5f4ccf);
+uint256 x = 28573233055232466711029625910063034642429572463461595413086259353299906450061;
+uint256 y = 39367742072897599771788408398752356480431855827262528811857788332151452825281;
+WebAuthn.WebAuthnAuth memory auth = WebAuthn.WebAuthnAuth({
+    authenticatorData: hex"49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000101",
+    origin: "http://localhost:3005",
+    crossOriginAndRemainder: "",
+    r: 43684192885701841787131392247364253107519555363555461570655060745499568693242,
+    s: 22655632649588629308599201066602670461698485748654492451178007896016452673579
+});
+assert(
+    WebAuthn.verify(
+        challenge, false, auth, x, y
+    )
+);
 ```
 
 ### Calldata fee comparison
