@@ -72,7 +72,7 @@ Numbers from Base mainnet as of February 26, 2024.
 | [FCL_WebAuthn.sol](https://github.com/rdubois-crypto/FreshCryptoLib/blob/master/solidity/src/FCL_Webauthn.sol) | 640 | 258426308149685 | 77 |
 
 ### Developing 
-After you clone the repo, you can run the tests using Forge, from [Foundry](https://github.com/foundry-rs/foundry?tab=readme-ov-file)
+After cloning the repo, run the tests using Forge, from [Foundry](https://github.com/foundry-rs/foundry?tab=readme-ov-file)
 ```bash
 forge test
 ```
