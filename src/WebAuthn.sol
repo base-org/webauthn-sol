@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 
 import {Base64Url} from "FreshCryptoLib/utils/Base64Url.sol";
 import {FCL_ecdsa} from "FreshCryptoLib/FCL_ecdsa.sol";
-import {Test, console2} from "forge-std/Test.sol";
 
 /// @title WebAuthn
 /// @notice A library for verifying WebAuthn Authentication Assertions, built off the work
@@ -115,7 +114,7 @@ library WebAuthn {
             return false;
         }
 
-        bytes memory _type = _slice(webAuthnAuth.clientDataJSON, 1, 22);
+        bytes memory _type = _slice(webAuthnAuth.clientDataJSON, webAuthnAuth.typeIndex, webAuthnAuth.typeIndex + 21);
         if (keccak256(_type) != EXPECTED_TYPE_HASH) {
             return false;
         }
@@ -124,7 +123,7 @@ library WebAuthn {
         string memory challengeB64url = Base64Url.encode(challenge);
         // 13. Verify that the value of C.challenge equals the base64url encoding of options.challenge.
         bytes memory expectedChallenge = bytes(string.concat('"challenge":"', challengeB64url, '"'));
-        bytes memory actualChallenge = _slice(webAuthnAuth.clientDataJSON, 23, 23 + expectedChallenge.length);
+        bytes memory actualChallenge = _slice(webAuthnAuth.clientDataJSON, webAuthnAuth.challengeIndex, webAuthnAuth.challengeIndex + expectedChallenge.length);
         if (keccak256(actualChallenge) != keccak256(expectedChallenge)) {
             return false;
         }
@@ -159,7 +158,7 @@ library WebAuthn {
         // Ideally this signature failure is simulated offchain and no one actually pay this gas.
         bool valid = ret.length > 0;
         if (success && valid) return abi.decode(ret, (uint256)) == 1;
-
+        
         return FCL_ecdsa.ecdsa_verify(messageHash, webAuthnAuth.r, webAuthnAuth.s, x, y);
     }
 
