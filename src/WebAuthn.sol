@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import {Base64Url} from "FreshCryptoLib/utils/Base64Url.sol";
 import {FCL_ecdsa} from "FreshCryptoLib/FCL_ecdsa.sol";
+import {Test, console2} from "forge-std/Test.sol";
 
 /// @title WebAuthn
 /// @notice A library for verifying WebAuthn Authentication Assertions, built off the work
@@ -13,20 +14,10 @@ import {FCL_ecdsa} from "FreshCryptoLib/FCL_ecdsa.sol";
 /// @author Daimo (https://github.com/daimo-eth/p256-verifier/blob/master/src/WebAuthn.sol)
 library WebAuthn {
     struct WebAuthnAuth {
-        /// @dev https://www.w3.org/TR/webauthn-3/#dom-authenticatorassertionresponse-authenticatordata
-        bytes authenticatorData;
-        /// @dev https://www.w3.org/TR/webauthn-3/#dom-collectedclientdata-origin
-        string origin;
-        /// @dev https://www.w3.org/TR/webauthn-3/#dom-collectedclientdata-crossorigin
-        /// @dev 13. https://www.w3.org/TR/webauthn/#clientdatajson-serialization
-        /// crossOrigin should always be present, re https://www.w3.org/TR/webauthn/#clientdatajson-serialization
-        /// but in practice is sometimes not. For this reason we include with remainder. String may be empty.
-        /// e.g.
-        ///     ''
-        ///     '"crossOrigin":false'
-        ///     '"tokenBinding":{"status":"present","id":"TbId"}'
-        ///     '"crossOrigin":false,"tokenBinding":{"status":"present","id":"TbId"}'
-        string crossOriginAndRemainder;
+      bytes authenticatorData;
+        bytes clientDataJSON;
+        uint256 challengeIndex;
+        uint256 typeIndex;
         /// @dev The r value of secp256r1 signature
         uint256 r;
         /// @dev The s value of secp256r1 signature
@@ -40,6 +31,8 @@ library WebAuthn {
     /// @dev secp256r1 curve order / 2 for malleability check
     uint256 constant P256_N_DIV_2 = 57896044605178124381348723474703786764998477612067880171211129530534256022184;
     address constant VERIFIER = address(0x100);
+
+    bytes32 constant EXPECTED_TYPE_HASH = keccak256('"type":"webauthn.get"');
 
     /**
      * @notice Verifies a Webauthn Authentication Assertion as described
@@ -122,28 +115,20 @@ library WebAuthn {
             return false;
         }
 
-        // 12. and 13. will be verified by the signature check
-        // 12. Verify that the value of C.type is the string webauthn.get.
-        // 13. Verify that the value of C.challenge equals the base64url encoding of options.challenge.
-        string memory challengeB64url = Base64Url.encode(challenge);
-        string memory remainder = bytes(webAuthnAuth.crossOriginAndRemainder).length == 0
-            ? ""
-            : string.concat(",", webAuthnAuth.crossOriginAndRemainder);
-        string memory clientDataJSON = string.concat(
-            // A well formed clientDataJSON will always begin with
-            // {"type":"webauthn.get","challenge":"
-            // and so we can save calldata and use this by default
-            // https://www.w3.org/TR/webauthn/#clientdatajson-serialization
-            '{"type":"webauthn.get","challenge":"',
-            challengeB64url,
-            '",',
-            '"origin":"',
-            webAuthnAuth.origin,
-            '"',
-            remainder,
-            "}"
-        );
+        bytes memory _type = _slice(webAuthnAuth.clientDataJSON, 1, 22);
+        if (keccak256(_type) != EXPECTED_TYPE_HASH) {
+            return false;
+        }
 
+        // 12. Verify that the value of C.challenge equals the base64url encoding of options.challenge.
+        string memory challengeB64url = Base64Url.encode(challenge);
+        // 13. Verify that the value of C.challenge equals the base64url encoding of options.challenge.
+        bytes memory expectedChallenge = bytes(string.concat('"challenge":"', challengeB64url, '"'));
+        bytes memory actualChallenge = _slice(webAuthnAuth.clientDataJSON, 23, 23 + expectedChallenge.length);
+        if (keccak256(actualChallenge) != keccak256(expectedChallenge)) {
+            return false;
+        }
+        
         // Skip 15., 16., and 16.
 
         // 17. Verify that the UP bit of the flags in authData is set.
@@ -160,7 +145,7 @@ library WebAuthn {
         // skip 19., 20., and 21.
 
         // 22. Let hash be the result of computing a hash over the cData using SHA-256.
-        bytes32 clientDataJSONHash = sha256(bytes(clientDataJSON));
+        bytes32 clientDataJSONHash = sha256(bytes(webAuthnAuth.clientDataJSON));
 
         // 23. Using credentialPublicKey, verify that sig is a valid signature over the binary concatenation of authData and hash.
         bytes32 messageHash = sha256(abi.encodePacked(webAuthnAuth.authenticatorData, clientDataJSONHash));
@@ -176,5 +161,19 @@ library WebAuthn {
         if (success && valid) return abi.decode(ret, (uint256)) == 1;
 
         return FCL_ecdsa.ecdsa_verify(messageHash, webAuthnAuth.r, webAuthnAuth.s, x, y);
+    }
+
+    function _slice(bytes memory data, uint256 start, uint256 end) internal pure returns (bytes memory) {
+        bytes memory result = new bytes(end - start);
+        assembly {
+            let dataStart := add(data, 32) // Skip array length
+            let resultStart := add(result, 32) // Skip array length
+
+            for { let i := start } lt(i, end) { i := add(i, 1) } {
+                let _byte := mload(add(dataStart, i))
+                mstore(add(resultStart, sub(i, start)), _byte)
+            }
+        }
+        return result;
     }
 }
