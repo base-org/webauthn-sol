@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import {Base64Url} from "FreshCryptoLib/utils/Base64Url.sol";
 import {FCL_ecdsa} from "FreshCryptoLib/FCL_ecdsa.sol";
+import {FCL_Elliptic_ZZ} from "FreshCryptoLib/FCL_elliptic.sol";
 
 /// @title WebAuthn
 /// @notice A library for verifying WebAuthn Authentication Assertions, built off the work
@@ -119,6 +120,11 @@ library WebAuthn {
     ) internal view returns (bool) {
         if (webAuthnAuth.s > P256_N_DIV_2) {
             // guard against signature malleability
+            return false;
+        }
+
+        if (!FCL_Elliptic_ZZ.ecAff_isOnCurve(x, y)) {
+            // verify the public key is on curve
             return false;
         }
 

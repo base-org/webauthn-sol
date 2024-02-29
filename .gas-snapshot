@@ -1,2 +1,2 @@
-WebAuthnTest:test_chrome() (gas: 245261)
-WebAuthnTest:test_safari() (gas: 240505)
+WebAuthnTest:test_chrome() (gas: 249746)
+WebAuthnTest:test_safari() (gas: 245050)
