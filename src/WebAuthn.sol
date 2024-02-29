@@ -13,11 +13,11 @@ import {FCL_ecdsa} from "FreshCryptoLib/FCL_ecdsa.sol";
 /// @author Daimo (https://github.com/daimo-eth/p256-verifier/blob/master/src/WebAuthn.sol)
 library WebAuthn {
     struct WebAuthnAuth {
-        /// @dev https://www.w3.org/TR/webauthn-2/#dom-authenticatorassertionresponse-authenticatordata
+        /// @dev https://www.w3.org/TR/webauthn-3/#dom-authenticatorassertionresponse-authenticatordata
         bytes authenticatorData;
-        /// @dev https://www.w3.org/TR/webauthn-2/#dom-collectedclientdata-origin
+        /// @dev https://www.w3.org/TR/webauthn-3/#dom-collectedclientdata-origin
         string origin;
-        /// @dev https://www.w3.org/TR/webauthn-2/#dom-collectedclientdata-crossorigin
+        /// @dev https://www.w3.org/TR/webauthn-3/#dom-collectedclientdata-crossorigin
         /// @dev 13. https://www.w3.org/TR/webauthn/#clientdatajson-serialization
         /// crossOrigin should always be present, re https://www.w3.org/TR/webauthn/#clientdatajson-serialization
         /// but in practice is sometimes not. For this reason we include with remainder. String may be empty.
@@ -43,7 +43,7 @@ library WebAuthn {
 
     /**
      * @notice Verifies a Webauthn Authentication Assertion as described
-     * in https://www.w3.org/TR/webauthn-2/#sctn-verifying-assertion.
+     * in https://www.w3.org/TR/webauthn-3/#sctn-verifying-assertion.
      *
      * @dev We do not verify all the steps as described in the specification, only ones relevant
      * to our context. Please carefully read through this list before usage.
@@ -122,9 +122,9 @@ library WebAuthn {
             return false;
         }
 
-        // 11. and 12. will be verified by the signature check
-        // 11. Verify that the value of C.type is the string webauthn.get.
-        // 12. Verify that the value of C.challenge equals the base64url encoding of options.challenge.
+        // 12. and 13. will be verified by the signature check
+        // 12. Verify that the value of C.type is the string webauthn.get.
+        // 13. Verify that the value of C.challenge equals the base64url encoding of options.challenge.
         string memory challengeB64url = Base64Url.encode(challenge);
         string memory remainder = bytes(webAuthnAuth.crossOriginAndRemainder).length == 0
             ? ""
@@ -144,25 +144,25 @@ library WebAuthn {
             "}"
         );
 
-        // Skip 13., 14., and 15.
+        // Skip 15., 16., and 16.
 
-        // 16. Verify that the User Present bit of the flags in authData is set.
+        // 17. Verify that the UP bit of the flags in authData is set.
         if (webAuthnAuth.authenticatorData[32] & AUTH_DATA_FLAGS_UP != AUTH_DATA_FLAGS_UP) {
             return false;
         }
 
-        // 17. If user verification is required for this assertion, verify that the User Verified bit of the flags in authData is set.
+        // 18. If user verification was determined to be required, verify that the UV bit of the flags in authData is set. Otherwise, ignore the value of the UV flag.
         if (requireUserVerification && (webAuthnAuth.authenticatorData[32] & AUTH_DATA_FLAGS_UV) != AUTH_DATA_FLAGS_UV)
         {
             return false;
         }
 
-        // skip 18.
+        // skip 19., 20., and 21.
 
-        // 19. Let hash be the result of computing a hash over the cData using SHA-256.
+        // 22. Let hash be the result of computing a hash over the cData using SHA-256.
         bytes32 clientDataJSONHash = sha256(bytes(clientDataJSON));
 
-        // 20. Using credentialPublicKey, verify that sig is a valid signature over the binary concatenation of authData and hash.
+        // 23. Using credentialPublicKey, verify that sig is a valid signature over the binary concatenation of authData and hash.
         bytes32 messageHash = sha256(abi.encodePacked(webAuthnAuth.authenticatorData, clientDataJSONHash));
         bytes memory args = abi.encode(messageHash, webAuthnAuth.r, webAuthnAuth.s, x, y);
         // try the RIP-7212 precompile address
