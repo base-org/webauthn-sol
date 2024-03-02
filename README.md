@@ -7,8 +7,6 @@ Webauthn-sol is a Solidity library for verifying WebAuthn authentication asserti
 
 This library is optimized for Ethereum layer 2 rollup chains but will work on all EVM chains. Signature verification always attempts to use the [RIP-7212 precompile](https://github.com/ethereum/RIPs/blob/master/RIPS/rip-7212.md) and, if this fails, falls back to using [FreshCryptoLib](https://github.com/rdubois-crypto/FreshCryptoLib/blob/master/solidity/src/FCL_ecdsa.sol#L40).
 
-As L1 calldata is the main cost driver of L2 transactions, this library is designed to minimize calldata. Rather than requiring the full clientDataJSON to be passed, we use a template to verify against what a well formed response *should* be, leveraging the [serialization specification](https://www.w3.org/TR/webauthn/#clientdatajson-serialization). 
-
 Code excerpts
 
 ```solidity

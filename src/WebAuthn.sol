@@ -3,17 +3,18 @@ pragma solidity ^0.8.0;
 
 import {Base64Url} from "FreshCryptoLib/utils/Base64Url.sol";
 import {FCL_ecdsa} from "FreshCryptoLib/FCL_ecdsa.sol";
+import {Test, console2} from "forge-std/Test.sol";
 
 /// @title WebAuthn
 /// @notice A library for verifying WebAuthn Authentication Assertions, built off the work
-/// of Daimo. This library is optimized for calldata,
-/// and attempts to use the RIP-7212 precompile for signature verification.
+/// of Daimo. 
+/// @dev Attempts to use the RIP-7212 precompile for signature verification.
 /// If precompile verification fails, it falls back to FreshCryptoLib.
 /// @author Coinbase (https://github.com/base-org/webauthn-sol)
 /// @author Daimo (https://github.com/daimo-eth/p256-verifier/blob/master/src/WebAuthn.sol)
 library WebAuthn {
     struct WebAuthnAuth {
-      bytes authenticatorData;
+        bytes authenticatorData;
         bytes clientDataJSON;
         uint256 challengeIndex;
         uint256 typeIndex;
@@ -30,7 +31,6 @@ library WebAuthn {
     /// @dev secp256r1 curve order / 2 for malleability check
     uint256 constant P256_N_DIV_2 = 57896044605178124381348723474703786764998477612067880171211129530534256022184;
     address constant VERIFIER = address(0x100);
-
     bytes32 constant EXPECTED_TYPE_HASH = keccak256('"type":"webauthn.get"');
 
     /**
@@ -83,17 +83,6 @@ library WebAuthn {
      * - Does NOT verify the attestation object: This assumes that
      *   response.attestationObject is NOT present in the response, i.e. the
      *   RP does not intend to verify an attestation.
-     *
-     * Our verification does not use full JSON parsing but leverages the serialization spec
-     * https://www.w3.org/TR/webauthn/#clientdatajson-serialization
-     * which is depended on by the limited verification algorithm
-     * https://www.w3.org/TR/webauthn/#clientdatajson-verification.
-     * We believe our templating approach is robust to future changes because the spec states
-     * "...future versions of this specification must not remove any of the fields
-     * type, challenge, origin, or crossOrigin from CollectedClientData.
-     * They also must not change the serialization algorithm to change the order
-     * in which those fields are serialized."
-     * https://www.w3.org/TR/webauthn/#clientdatajson-development
      *
      * @param challenge The challenge that was provided by the relying party
      * @param requireUserVerification A boolean indicating whether user verification is required
@@ -158,15 +147,16 @@ library WebAuthn {
         // Ideally this signature failure is simulated offchain and no one actually pay this gas.
         bool valid = ret.length > 0;
         if (success && valid) return abi.decode(ret, (uint256)) == 1;
-        
+        console2.log('here');
         return FCL_ecdsa.ecdsa_verify(messageHash, webAuthnAuth.r, webAuthnAuth.s, x, y);
     }
 
+    // TODO use solady string lib
     function _slice(bytes memory data, uint256 start, uint256 end) internal pure returns (bytes memory) {
         bytes memory result = new bytes(end - start);
         assembly {
-            let dataStart := add(data, 32) // Skip array length
-            let resultStart := add(result, 32) // Skip array length
+            let dataStart := add(data, 32)
+            let resultStart := add(result, 32)
 
             for { let i := start } lt(i, end) { i := add(i, 1) } {
                 let _byte := mload(add(dataStart, i))
