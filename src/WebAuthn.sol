@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {Base64Url} from "FreshCryptoLib/utils/Base64Url.sol";
 import {FCL_ecdsa} from "FreshCryptoLib/FCL_ecdsa.sol";
-import {Test, console2} from "forge-std/Test.sol";
+import {LibString} from "solady/utils/LibString.sol";
 
 /// @title WebAuthn
 /// @notice A library for verifying WebAuthn Authentication Assertions, built off the work
@@ -13,9 +13,11 @@ import {Test, console2} from "forge-std/Test.sol";
 /// @author Coinbase (https://github.com/base-org/webauthn-sol)
 /// @author Daimo (https://github.com/daimo-eth/p256-verifier/blob/master/src/WebAuthn.sol)
 library WebAuthn {
+  using LibString for string;
+
     struct WebAuthnAuth {
         bytes authenticatorData;
-        bytes clientDataJSON;
+        string clientDataJSON;
         uint256 challengeIndex;
         uint256 typeIndex;
         /// @dev The r value of secp256r1 signature
@@ -103,8 +105,8 @@ library WebAuthn {
             return false;
         }
 
-        bytes memory _type = _slice(webAuthnAuth.clientDataJSON, webAuthnAuth.typeIndex, webAuthnAuth.typeIndex + 21);
-        if (keccak256(_type) != EXPECTED_TYPE_HASH) {
+        string memory _type = webAuthnAuth.clientDataJSON.slice(webAuthnAuth.typeIndex, webAuthnAuth.typeIndex + 21);
+        if (keccak256(bytes(_type)) != EXPECTED_TYPE_HASH) {
             return false;
         }
 
@@ -112,8 +114,8 @@ library WebAuthn {
         string memory challengeB64url = Base64Url.encode(challenge);
         // 13. Verify that the value of C.challenge equals the base64url encoding of options.challenge.
         bytes memory expectedChallenge = bytes(string.concat('"challenge":"', challengeB64url, '"'));
-        bytes memory actualChallenge = _slice(webAuthnAuth.clientDataJSON, webAuthnAuth.challengeIndex, webAuthnAuth.challengeIndex + expectedChallenge.length);
-        if (keccak256(actualChallenge) != keccak256(expectedChallenge)) {
+        string memory actualChallenge = webAuthnAuth.clientDataJSON.slice(webAuthnAuth.challengeIndex, webAuthnAuth.challengeIndex + expectedChallenge.length);
+        if (keccak256(bytes(actualChallenge)) != keccak256(expectedChallenge)) {
             return false;
         }
         
@@ -147,22 +149,7 @@ library WebAuthn {
         // Ideally this signature failure is simulated offchain and no one actually pay this gas.
         bool valid = ret.length > 0;
         if (success && valid) return abi.decode(ret, (uint256)) == 1;
-        console2.log('here');
+
         return FCL_ecdsa.ecdsa_verify(messageHash, webAuthnAuth.r, webAuthnAuth.s, x, y);
-    }
-
-    // TODO use solady string lib
-    function _slice(bytes memory data, uint256 start, uint256 end) internal pure returns (bytes memory) {
-        bytes memory result = new bytes(end - start);
-        assembly {
-            let dataStart := add(data, 32)
-            let resultStart := add(result, 32)
-
-            for { let i := start } lt(i, end) { i := add(i, 1) } {
-                let _byte := mload(add(dataStart, i))
-                mstore(add(resultStart, sub(i, start)), _byte)
-            }
-        }
-        return result;
     }
 }
