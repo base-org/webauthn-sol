@@ -13,7 +13,9 @@ contract WebAuthnTest is Test {
         uint256 y = 39367742072897599771788408398752356480431855827262528811857788332151452825281;
         WebAuthn.WebAuthnAuth memory auth = WebAuthn.WebAuthnAuth({
             authenticatorData: hex"49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000101",
-            clientDataJSON: string.concat('{"type":"webauthn.get","challenge":"',Base64Url.encode(challenge),'","origin":"http://localhost:3005"}'),
+            clientDataJSON: string.concat(
+                '{"type":"webauthn.get","challenge":"', Base64Url.encode(challenge), '","origin":"http://localhost:3005"}'
+                ),
             challengeIndex: 23,
             typeIndex: 1,
             r: 43684192885701841787131392247364253107519555363555461570655060745499568693242,
@@ -27,7 +29,11 @@ contract WebAuthnTest is Test {
         uint256 y = 39367742072897599771788408398752356480431855827262528811857788332151452825281;
         WebAuthn.WebAuthnAuth memory auth = WebAuthn.WebAuthnAuth({
             authenticatorData: hex"49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d9763050000010a",
-            clientDataJSON: string.concat('{"type":"webauthn.get","challenge":"',Base64Url.encode(challenge),'","origin":"http://localhost:3005","crossOrigin":false}'),
+            clientDataJSON: string.concat(
+                '{"type":"webauthn.get","challenge":"',
+                Base64Url.encode(challenge),
+                '","origin":"http://localhost:3005","crossOrigin":false}'
+                ),
             challengeIndex: 23,
             typeIndex: 1,
             r: 29739767516584490820047863506833955097567272713519339793744591468032609909569,

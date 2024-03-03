@@ -4,9 +4,6 @@
 [submodule "lib/FreshCryptoLib"]
 	path = lib/FreshCryptoLib
 	url = https://github.com/rdubois-crypto/FreshCryptoLib
-[submodule "lib/p256-verifier"]
-	path = lib/p256-verifier
-	url = https://github.com/daimo-eth/p256-verifier
 [submodule "lib/solady"]
 	path = lib/solady
 	url = https://github.com/vectorized/solady

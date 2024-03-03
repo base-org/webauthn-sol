@@ -1,24 +1,28 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {Base64Url} from "FreshCryptoLib/utils/Base64Url.sol";
+import {Base64} from "solady/utils/Base64.sol";
 import {FCL_ecdsa} from "FreshCryptoLib/FCL_ecdsa.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
 /// @title WebAuthn
 /// @notice A library for verifying WebAuthn Authentication Assertions, built off the work
-/// of Daimo. 
+/// of Daimo.
 /// @dev Attempts to use the RIP-7212 precompile for signature verification.
 /// If precompile verification fails, it falls back to FreshCryptoLib.
 /// @author Coinbase (https://github.com/base-org/webauthn-sol)
 /// @author Daimo (https://github.com/daimo-eth/p256-verifier/blob/master/src/WebAuthn.sol)
 library WebAuthn {
-  using LibString for string;
+    using LibString for string;
 
     struct WebAuthnAuth {
+        /// @dev https://www.w3.org/TR/webauthn-2/#dom-authenticatorassertionresponse-authenticatordata
         bytes authenticatorData;
+        /// @dev https://www.w3.org/TR/webauthn-2/#dom-authenticatorresponse-clientdatajson
         string clientDataJSON;
+        /// The index at which "challenge":"..." occurs in clientDataJSON
         uint256 challengeIndex;
+        /// The index at which "type":"..." occurs in clientDataJSON
         uint256 typeIndex;
         /// @dev The r value of secp256r1 signature
         uint256 r;
@@ -37,7 +41,7 @@ library WebAuthn {
 
     /**
      * @notice Verifies a Webauthn Authentication Assertion as described
-     * in https://www.w3.org/TR/webauthn-3/#sctn-verifying-assertion.
+     * in https://www.w3.org/TR/webauthn-2/#sctn-verifying-assertion.
      *
      * @dev We do not verify all the steps as described in the specification, only ones relevant
      * to our context. Please carefully read through this list before usage.
@@ -111,14 +115,16 @@ library WebAuthn {
         }
 
         // 12. Verify that the value of C.challenge equals the base64url encoding of options.challenge.
-        string memory challengeB64url = Base64Url.encode(challenge);
+        string memory challengeB64url = Base64.encode(challenge, true, true);
         // 13. Verify that the value of C.challenge equals the base64url encoding of options.challenge.
         bytes memory expectedChallenge = bytes(string.concat('"challenge":"', challengeB64url, '"'));
-        string memory actualChallenge = webAuthnAuth.clientDataJSON.slice(webAuthnAuth.challengeIndex, webAuthnAuth.challengeIndex + expectedChallenge.length);
+        string memory actualChallenge = webAuthnAuth.clientDataJSON.slice(
+            webAuthnAuth.challengeIndex, webAuthnAuth.challengeIndex + expectedChallenge.length
+        );
         if (keccak256(bytes(actualChallenge)) != keccak256(expectedChallenge)) {
             return false;
         }
-        
+
         // Skip 15., 16., and 16.
 
         // 17. Verify that the UP bit of the flags in authData is set.
