@@ -109,6 +109,7 @@ library WebAuthn {
             return false;
         }
 
+        // 21 = bytes("type":"webauthn.get").length
         string memory _type = webAuthnAuth.clientDataJSON.slice(webAuthnAuth.typeIndex, webAuthnAuth.typeIndex + 21);
         if (keccak256(bytes(_type)) != EXPECTED_TYPE_HASH) {
             return false;
