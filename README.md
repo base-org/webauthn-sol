@@ -13,18 +13,12 @@ Code excerpts
 struct WebAuthnAuth {
     /// @dev https://www.w3.org/TR/webauthn-2/#dom-authenticatorassertionresponse-authenticatordata
     bytes authenticatorData;
-    /// @dev https://www.w3.org/TR/webauthn-2/#dom-collectedclientdata-origin
-    string origin;
-    /// @dev https://www.w3.org/TR/webauthn-2/#dom-collectedclientdata-crossorigin
-    /// @dev 13. https://www.w3.org/TR/webauthn/#clientdatajson-serialization
-    /// crossOrigin should always be present, re https://www.w3.org/TR/webauthn/#clientdatajson-serialization
-    /// but in practice is sometimes not. For this reason we include with remainder. String may be empty.
-    /// e.g.
-    ///     ''
-    ///     '"crossOrigin":false'
-    ///     '"tokenBinding":{"status":"present","id":"TbId"}'
-    ///     '"crossOrigin":false,"tokenBinding":{"status":"present","id":"TbId"}'
-    string crossOriginAndRemainder;
+    /// @dev https://www.w3.org/TR/webauthn-2/#dom-authenticatorresponse-clientdatajson
+    string clientDataJSON;
+    /// The index at which "challenge":"..." occurs in clientDataJSON
+    uint256 challengeIndex;
+    /// The index at which "type":"..." occurs in clientDataJSON
+    uint256 typeIndex;
     /// @dev The r value of secp256r1 signature
     uint256 r;
     /// @dev The s value of secp256r1 signature
