@@ -97,7 +97,7 @@ def _create_credential(driver: WebDriver, private_key_as_b64: str):
     return rp_id
 
 
-def _trigger_assertion(driver: WebDriver, rp_id: str):
+def _trigger_assertion(driver: WebDriver, rp_id: str) -> tuple[str, str, str, str]:
     def _generate_random_string(length):
         # ASCII characters from space (32) to tilde (126)
         ascii_characters = ''.join(chr(i) for i in range(32, 127))
@@ -127,11 +127,11 @@ def _trigger_assertion(driver: WebDriver, rp_id: str):
     signature_as_b64 = driver.execute_script(js_code)
     signature = base64.b64decode(signature_as_b64)
 
-    js_code = "return getClientDataJsonCrossOriginAndRemainderAsString();"
-    client_data_json_cross_origin_and_remainder = driver.execute_script(
+    js_code = "return getClientDataJson();"
+    client_data_json = driver.execute_script(
         js_code)
 
-    return challenge, authenticator_data, signature, client_data_json_cross_origin_and_remainder
+    return challenge, authenticator_data, signature, client_data_json
 
 
 def _generate(size: int):
@@ -150,7 +150,7 @@ def _generate(size: int):
         x, y, private_key_as_b64 = _generate_private_key()
 
         rp_id = _create_credential(driver, private_key_as_b64)
-        challenge, authenticator_data, signature, client_data_json_cross_origin_and_remainder = _trigger_assertion(
+        challenge, authenticator_data, signature, client_data_json = _trigger_assertion(
             driver, rp_id)
 
         _remove_virtual_authenticator(driver)
@@ -163,15 +163,18 @@ def _generate(size: int):
         #     continue
 
         result = {}
-        result["origin"] = f"http://{rp_id}:5000"
         result["uv"] = uv
         result["x"] = x
         result["y"] = y
         result["challenge"] = challenge
         result["r"] = r
         result["s"] = s
-        result["authenticatorData"] = authenticator_data
-        result["clientDataJsonCrossOriginAndRemainder"] = client_data_json_cross_origin_and_remainder
+        result["authenticator_data"] = authenticator_data
+        result["client_data_json"] = {
+            "json": client_data_json,
+            "type_index": client_data_json.find("\"type\":"),
+            "challenge_index": client_data_json.find("\"challenge\":")
+        }
         results.append(result)
 
     driver.quit()

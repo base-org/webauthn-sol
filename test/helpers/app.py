@@ -36,19 +36,11 @@ function arrayBufferToBase64Sync(buffer) {
     return window.btoa(binary);
 }
 
-function getClientDataJsonCrossOriginAndRemainderAsString() {
+function getClientDataJson() {
     const utf8Decoder = new TextDecoder('utf-8');
-    const decodedClientData = utf8Decoder.decode(
-        globalAssertion.response.clientDataJSON)
-
-    // parse the string as an object
-    const clientDataObj = JSON.parse(decodedClientData);
-    delete clientDataObj.origin;
-    delete clientDataObj.type;
-    delete clientDataObj.challenge;
-    const remainderString = JSON.stringify(clientDataObj).slice(1, -1);
-
-    return remainderString;
+    const clientDataJson = utf8Decoder.decode(
+        globalAssertion.response.clientDataJSON);
+    return clientDataJson;
 }
 
 document.getElementById('authButton').addEventListener('click', async () => {
