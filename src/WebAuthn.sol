@@ -5,8 +5,6 @@ import {Base64} from "solady/utils/Base64.sol";
 import {FCL_ecdsa} from "FreshCryptoLib/FCL_ecdsa.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
-import "forge-std/console.sol";
-
 /// @title WebAuthn
 /// @notice A library for verifying WebAuthn Authentication Assertions, built off the work
 /// of Daimo.
