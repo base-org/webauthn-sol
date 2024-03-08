@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {FCL_ecdsa} from "FreshCryptoLib/FCL_ecdsa.sol";
+import {FCL_Elliptic_ZZ} from "FreshCryptoLib/FCL_elliptic.sol";
 
 import {WebAuthn} from "../src/WebAuthn.sol";
 
@@ -12,6 +13,8 @@ contract WebAuthnFuzzTest is Test {
 
     string constant testFile = "/test/fixtures/assertions_fixture.json";
 
+    uint256 private constant P256_N_DIV_2 = FCL_Elliptic_ZZ.n / 2;
+
     /// @dev `WebAuthn.verify` should return `false` when `s` is above P256_N_DIV_2.
     function test_Verify_ShoulReturnFalse_WhenSAboveP256_N_DIV_2() public {
         string memory rootPath = vm.projectRoot();
@@ -19,7 +22,7 @@ contract WebAuthnFuzzTest is Test {
         string memory json = vm.readFile(path);
         uint256 count = abi.decode(json.parseRaw(".count"), (uint256));
 
-        for (uint256 i = 0; i < count; i++) {
+        for (uint256 i; i < count; i++) {
             (
                 string memory jsonCaseSelector,
                 bytes memory challenge,
@@ -32,17 +35,11 @@ contract WebAuthnFuzzTest is Test {
             console.log("Veryfing", jsonCaseSelector);
 
             // Only interested in s > P256_N_DIV_2 cases.
-            if (webAuthnAuth.s <= WebAuthn.P256_N_DIV_2) {
+            if (webAuthnAuth.s <= P256_N_DIV_2) {
                 webAuthnAuth.s = FCL_ecdsa.n - webAuthnAuth.s;
             }
 
-            bool res = WebAuthn.verify({
-                challenge: challenge,
-                requireUserVerification: uv,
-                webAuthnAuth: webAuthnAuth,
-                x: x,
-                y: y
-            });
+            bool res = WebAuthn.verify({challenge: challenge, requireUV: uv, webAuthnAuth: webAuthnAuth, x: x, y: y});
 
             // Assert the verification failed to guard against signature malleability.
             assertEq(res, false, string.concat("Failed on ", jsonCaseSelector));
@@ -58,7 +55,7 @@ contract WebAuthnFuzzTest is Test {
         string memory json = vm.readFile(path);
         uint256 count = abi.decode(json.parseRaw(".count"), (uint256));
 
-        for (uint256 i = 0; i < count; i++) {
+        for (uint256 i; i < count; i++) {
             (
                 string memory jsonCaseSelector,
                 bytes memory challenge,
@@ -71,20 +68,14 @@ contract WebAuthnFuzzTest is Test {
             console.log("Veryfing", jsonCaseSelector);
 
             // Only interested in s <= P256_N_DIV_2 case
-            if (webAuthnAuth.s > WebAuthn.P256_N_DIV_2) {
+            if (webAuthnAuth.s > P256_N_DIV_2) {
                 webAuthnAuth.s = FCL_ecdsa.n - webAuthnAuth.s;
             }
 
             // Unset the `up` flag.
             webAuthnAuth.authenticatorData[32] = webAuthnAuth.authenticatorData[32] & bytes1(0xfe);
 
-            bool res = WebAuthn.verify({
-                challenge: challenge,
-                requireUserVerification: uv,
-                webAuthnAuth: webAuthnAuth,
-                x: x,
-                y: y
-            });
+            bool res = WebAuthn.verify({challenge: challenge, requireUV: uv, webAuthnAuth: webAuthnAuth, x: x, y: y});
 
             // Assert the verification failed because the `up` flag was not set.
             assertEq(res, false, string.concat("Failed on ", jsonCaseSelector));
@@ -93,7 +84,7 @@ contract WebAuthnFuzzTest is Test {
         }
     }
 
-    /// @dev `WebAuthn.verify` should return `false` when `requireUserVerification` is `true` but the
+    /// @dev `WebAuthn.verify` should return `false` when `requireUV` is `true` but the
     ///       authenticator did not set the `uv` flag.
     function test_Verify_ShoulReturnFalse_WhenUserVerifictionIsRequiredButTestWasNotPerformed() public {
         string memory rootPath = vm.projectRoot();
@@ -101,7 +92,7 @@ contract WebAuthnFuzzTest is Test {
         string memory json = vm.readFile(path);
         uint256 count = abi.decode(json.parseRaw(".count"), (uint256));
 
-        for (uint256 i = 0; i < count; i++) {
+        for (uint256 i; i < count; i++) {
             (
                 string memory jsonCaseSelector,
                 bytes memory challenge,
@@ -118,13 +109,13 @@ contract WebAuthnFuzzTest is Test {
                 continue;
             }
 
-            if (webAuthnAuth.s > WebAuthn.P256_N_DIV_2) {
+            if (webAuthnAuth.s > P256_N_DIV_2) {
                 webAuthnAuth.s = FCL_ecdsa.n - webAuthnAuth.s;
             }
 
             bool res = WebAuthn.verify({
                 challenge: challenge,
-                requireUserVerification: true, // Set UV to required to ensure false is returned
+                requireUV: true, // Set UV to required to ensure false is returned
                 webAuthnAuth: webAuthnAuth,
                 x: x,
                 y: y
@@ -137,7 +128,7 @@ contract WebAuthnFuzzTest is Test {
         }
     }
 
-    /// @dev `WebAuthn.verify` should return `true` when `s` is below `P256_N_DIV_2` and `requireUserVerification`
+    /// @dev `WebAuthn.verify` should return `true` when `s` is below `P256_N_DIV_2` and `requireUV`
     ///       "matches" with the `uv` flag set by the authenticator.
     function test_Verify_ShoulReturnTrue_WhenSBelowP256_N_DIV_2() public {
         string memory rootPath = vm.projectRoot();
@@ -146,7 +137,7 @@ contract WebAuthnFuzzTest is Test {
 
         uint256 count = abi.decode(json.parseRaw(".count"), (uint256));
 
-        for (uint256 i = 0; i < count; i++) {
+        for (uint256 i; i < count; i++) {
             (
                 string memory jsonCaseSelector,
                 bytes memory challenge,
@@ -159,17 +150,11 @@ contract WebAuthnFuzzTest is Test {
             console.log("Veryfing", jsonCaseSelector);
 
             // Only interested in s <= P256_N_DIV_2 cases
-            if (webAuthnAuth.s > WebAuthn.P256_N_DIV_2) {
+            if (webAuthnAuth.s > P256_N_DIV_2) {
                 webAuthnAuth.s = FCL_ecdsa.n - webAuthnAuth.s;
             }
 
-            bool res = WebAuthn.verify({
-                challenge: challenge,
-                requireUserVerification: uv,
-                webAuthnAuth: webAuthnAuth,
-                x: x,
-                y: y
-            });
+            bool res = WebAuthn.verify({challenge: challenge, requireUV: uv, webAuthnAuth: webAuthnAuth, x: x, y: y});
 
             // Assert the verification succeeded.
             assertEq(res, true, string.concat("Failed on ", jsonCaseSelector));
