@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {Base64} from "solady/utils/Base64.sol";
 import {FCL_ecdsa} from "FreshCryptoLib/FCL_ecdsa.sol";
 import {FCL_Elliptic_ZZ} from "FreshCryptoLib/FCL_elliptic.sol";
+import {Base64} from "openzeppelin-contracts/contracts/utils/Base64.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
 /// @title WebAuthn
@@ -120,8 +120,7 @@ library WebAuthn {
         }
 
         // 12. Verify that the value of C.challenge equals the base64url encoding of options.challenge.
-        bytes memory expectedChallenge =
-            bytes(string.concat('"challenge":"', Base64.encode(challenge, true, true), '"'));
+        bytes memory expectedChallenge = bytes(string.concat('"challenge":"', Base64.encodeURL(challenge), '"'));
         string memory actualChallenge = webAuthnAuth.clientDataJSON.slice(
             webAuthnAuth.challengeIndex, webAuthnAuth.challengeIndex + expectedChallenge.length
         );
