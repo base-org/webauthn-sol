@@ -1,0 +1,6 @@
+FreshCryptoLib/=lib/FreshCryptoLib/solidity/src/
+openzeppelin-contracts/=lib/openzeppelin-contracts/
+solady/=lib/solady/src/
+
+ds-test/=lib/forge-std/lib/ds-test/src/
+forge-std/=lib/forge-std/src/
