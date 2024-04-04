@@ -2,18 +2,16 @@
 pragma solidity ^0.8.0;
 
 import {FCL_ecdsa} from "FreshCryptoLib/FCL_ecdsa.sol";
-import {FCL_Elliptic_ZZ} from "FreshCryptoLib/FCL_elliptic.sol";
 
 import {WebAuthn} from "../src/WebAuthn.sol";
 
 import "forge-std/Test.sol";
+import "./Utils.sol";
 
 contract WebAuthnFuzzTest is Test {
     using stdJson for string;
 
     string constant testFile = "/test/fixtures/assertions_fixture.json";
-
-    uint256 private constant P256_N_DIV_2 = FCL_Elliptic_ZZ.n / 2;
 
     /// @dev `WebAuthn.verify` should return `false` when `s` is above P256_N_DIV_2.
     function test_Verify_ShoulReturnFalse_WhenSAboveP256_N_DIV_2() public {
@@ -35,7 +33,7 @@ contract WebAuthnFuzzTest is Test {
             console.log("Veryfing", jsonCaseSelector);
 
             // Only interested in s > P256_N_DIV_2 cases.
-            if (webAuthnAuth.s <= P256_N_DIV_2) {
+            if (webAuthnAuth.s <= Utils.P256_N_DIV_2) {
                 webAuthnAuth.s = FCL_ecdsa.n - webAuthnAuth.s;
             }
 
@@ -67,10 +65,7 @@ contract WebAuthnFuzzTest is Test {
 
             console.log("Veryfing", jsonCaseSelector);
 
-            // Only interested in s <= P256_N_DIV_2 case
-            if (webAuthnAuth.s > P256_N_DIV_2) {
-                webAuthnAuth.s = FCL_ecdsa.n - webAuthnAuth.s;
-            }
+            webAuthnAuth.s = Utils.normalizeS(webAuthnAuth.s);
 
             // Unset the `up` flag.
             webAuthnAuth.authenticatorData[32] = webAuthnAuth.authenticatorData[32] & bytes1(0xfe);
@@ -109,9 +104,7 @@ contract WebAuthnFuzzTest is Test {
                 continue;
             }
 
-            if (webAuthnAuth.s > P256_N_DIV_2) {
-                webAuthnAuth.s = FCL_ecdsa.n - webAuthnAuth.s;
-            }
+            webAuthnAuth.s = Utils.normalizeS(webAuthnAuth.s);
 
             bool res = WebAuthn.verify({
                 challenge: challenge,
@@ -149,10 +142,7 @@ contract WebAuthnFuzzTest is Test {
 
             console.log("Veryfing", jsonCaseSelector);
 
-            // Only interested in s <= P256_N_DIV_2 cases
-            if (webAuthnAuth.s > P256_N_DIV_2) {
-                webAuthnAuth.s = FCL_ecdsa.n - webAuthnAuth.s;
-            }
+            webAuthnAuth.s = Utils.normalizeS(webAuthnAuth.s);
 
             bool res = WebAuthn.verify({challenge: challenge, requireUV: uv, webAuthnAuth: webAuthnAuth, x: x, y: y});
 
