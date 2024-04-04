@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {Base64Url} from "FreshCryptoLib/utils/Base64Url.sol";
+import {FCL_Elliptic_ZZ} from "FreshCryptoLib/FCL_elliptic.sol";
 
 struct WebAuthnInfo {
     bytes authenticatorData;
@@ -10,6 +11,8 @@ struct WebAuthnInfo {
 }
 
 library Utils {
+    uint256 constant P256_N_DIV_2 = FCL_Elliptic_ZZ.n / 2;
+
     function getWebAuthnStruct(bytes32 challenge) public pure returns (WebAuthnInfo memory) {
         string memory challengeb64url = Base64Url.encode(abi.encode(challenge));
         string memory clientDataJSON = string(
@@ -27,5 +30,15 @@ library Utils {
         bytes32 messageHash = sha256(abi.encodePacked(authenticatorData, clientDataJSONHash));
 
         return WebAuthnInfo(authenticatorData, clientDataJSON, messageHash);
+    }
+
+    /// @dev normalizes the s value from a p256r1 signature so that
+    /// it will pass malleability checks.
+    function normalizeS(uint256 s) public pure returns (uint256) {
+        if (s > P256_N_DIV_2) {
+            return FCL_Elliptic_ZZ.n - s;
+        }
+
+        return s;
     }
 }
