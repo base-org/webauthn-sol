@@ -38,22 +38,22 @@ library WebAuthn {
 
     /// @dev Bit 0 of the authenticator data struct, corresponding to the "User Present" bit.
     ///      See https://www.w3.org/TR/webauthn-2/#flags.
-    bytes1 private constant AUTH_DATA_FLAGS_UP = 0x01;
+    bytes1 private constant _AUTH_DATA_FLAGS_UP = 0x01;
 
     /// @dev Bit 2 of the authenticator data struct, corresponding to the "User Verified" bit.
     ///      See https://www.w3.org/TR/webauthn-2/#flags.
-    bytes1 private constant AUTH_DATA_FLAGS_UV = 0x04;
+    bytes1 private constant _AUTH_DATA_FLAGS_UV = 0x04;
 
     /// @dev Secp256r1 curve order / 2 used as guard to prevent signature malleability issue.
-    uint256 private constant P256_N_DIV_2 = FCL_Elliptic_ZZ.n / 2;
+    uint256 private constant _P256_N_DIV_2 = FCL_Elliptic_ZZ.n / 2;
 
     /// @dev The precompiled contract address to use for signature verification in the “secp256r1” elliptic curve.
     ///      See https://github.com/ethereum/RIPs/blob/master/RIPS/rip-7212.md.
-    address private constant VERIFIER = address(0x100);
+    address private constant _VERIFIER = address(0x100);
 
     /// @dev The expected type (hash) in the client data JSON when verifying assertion signatures.
     ///      See https://www.w3.org/TR/webauthn-2/#dom-collectedclientdata-type
-    bytes32 private constant EXPECTED_TYPE_HASH = keccak256('"type":"webauthn.get"');
+    bytes32 private constant _EXPECTED_TYPE_HASH = keccak256('"type":"webauthn.get"');
 
     ///
     /// @notice Verifies a Webauthn Authentication Assertion as described
@@ -107,7 +107,7 @@ library WebAuthn {
         view
         returns (bool)
     {
-        if (webAuthnAuth.s > P256_N_DIV_2) {
+        if (webAuthnAuth.s > _P256_N_DIV_2) {
             // guard against signature malleability
             return false;
         }
@@ -115,7 +115,7 @@ library WebAuthn {
         // 11. Verify that the value of C.type is the string webauthn.get.
         // bytes("type":"webauthn.get").length = 21
         string memory _type = webAuthnAuth.clientDataJSON.slice(webAuthnAuth.typeIndex, webAuthnAuth.typeIndex + 21);
-        if (keccak256(bytes(_type)) != EXPECTED_TYPE_HASH) {
+        if (keccak256(bytes(_type)) != _EXPECTED_TYPE_HASH) {
             return false;
         }
 
@@ -131,12 +131,12 @@ library WebAuthn {
         // Skip 13., 14., 15.
 
         // 16. Verify that the UP bit of the flags in authData is set.
-        if (webAuthnAuth.authenticatorData[32] & AUTH_DATA_FLAGS_UP != AUTH_DATA_FLAGS_UP) {
+        if (webAuthnAuth.authenticatorData[32] & _AUTH_DATA_FLAGS_UP != _AUTH_DATA_FLAGS_UP) {
             return false;
         }
 
         // 17. If user verification is required for this assertion, verify that the User Verified bit of the flags in authData is set.
-        if (requireUV && (webAuthnAuth.authenticatorData[32] & AUTH_DATA_FLAGS_UV) != AUTH_DATA_FLAGS_UV) {
+        if (requireUV && (webAuthnAuth.authenticatorData[32] & _AUTH_DATA_FLAGS_UV) != _AUTH_DATA_FLAGS_UV) {
             return false;
         }
 
@@ -149,7 +149,7 @@ library WebAuthn {
         bytes32 messageHash = sha256(abi.encodePacked(webAuthnAuth.authenticatorData, clientDataJSONHash));
         bytes memory args = abi.encode(messageHash, webAuthnAuth.r, webAuthnAuth.s, x, y);
         // try the RIP-7212 precompile address
-        (bool success, bytes memory ret) = VERIFIER.staticcall(args);
+        (bool success, bytes memory ret) = _VERIFIER.staticcall(args);
         // staticcall will not revert if address has no code
         // check return length
         // note that even if precompile exists, ret.length is 0 when verification returns false
