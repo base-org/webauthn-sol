@@ -113,7 +113,7 @@ library WebAuthn {
         }
 
         // 11. Verify that the value of C.type is the string webauthn.get.
-        // bytes("type":"webauthn.get").length = 21
+        //     bytes("type":"webauthn.get").length = 21
         string memory _type = webAuthnAuth.clientDataJSON.slice(webAuthnAuth.typeIndex, webAuthnAuth.typeIndex + 21);
         if (keccak256(bytes(_type)) != _EXPECTED_TYPE_HASH) {
             return false;
@@ -135,7 +135,7 @@ library WebAuthn {
         }
 
         // 17. If user verification is required for this assertion, verify that the User Verified bit of the flags in
-        // authData is set.
+        //     authData is set.
         if (requireUV && (webAuthnAuth.authenticatorData[32] & _AUTH_DATA_FLAGS_UV) != _AUTH_DATA_FLAGS_UV) {
             return false;
         }
@@ -146,7 +146,7 @@ library WebAuthn {
         bytes32 clientDataJSONHash = sha256(bytes(webAuthnAuth.clientDataJSON));
 
         // 20. Using credentialPublicKey, verify that sig is a valid signature over the binary concatenation of authData
-        // and hash.
+        //     and hash.
         bytes32 messageHash = sha256(abi.encodePacked(webAuthnAuth.authenticatorData, clientDataJSONHash));
         bytes memory args = abi.encode(messageHash, webAuthnAuth.r, webAuthnAuth.s, x, y);
         // try the RIP-7212 precompile address
