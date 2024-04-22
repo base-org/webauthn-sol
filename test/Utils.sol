@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {Base64Url} from "FreshCryptoLib/utils/Base64Url.sol";
 import {FCL_Elliptic_ZZ} from "FreshCryptoLib/FCL_elliptic.sol";
+import {Base64Url} from "FreshCryptoLib/utils/Base64Url.sol";
 
 struct WebAuthnInfo {
     bytes authenticatorData;

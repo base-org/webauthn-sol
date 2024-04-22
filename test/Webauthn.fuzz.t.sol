@@ -5,8 +5,8 @@ import {FCL_ecdsa} from "FreshCryptoLib/FCL_ecdsa.sol";
 
 import {WebAuthn} from "../src/WebAuthn.sol";
 
-import "forge-std/Test.sol";
 import "./Utils.sol";
+import "forge-std/Test.sol";
 
 contract WebAuthnFuzzTest is Test {
     using stdJson for string;
@@ -114,7 +114,8 @@ contract WebAuthnFuzzTest is Test {
                 y: y
             });
 
-            // Assert the verification failed because user verification was required but not performed by the authenticator.
+            // Assert the verification failed because user verification was required but not performed by the
+            // authenticator.
             assertEq(res, false, string.concat("Failed on ", jsonCaseSelector));
 
             console.log("------------------------------------");
@@ -176,7 +177,7 @@ contract WebAuthnFuzzTest is Test {
             clientDataJSON: abi.decode(json.parseRaw(string.concat(jsonCaseSelector, ".client_data_json.json")), (string)),
             challengeIndex: abi.decode(
                 json.parseRaw(string.concat(jsonCaseSelector, ".client_data_json.challenge_index")), (uint256)
-                ),
+            ),
             typeIndex: abi.decode(json.parseRaw(string.concat(jsonCaseSelector, ".client_data_json.type_index")), (uint256)),
             r: abi.decode(json.parseRaw(string.concat(jsonCaseSelector, ".r")), (uint256)),
             s: abi.decode(json.parseRaw(string.concat(jsonCaseSelector, ".s")), (uint256))
