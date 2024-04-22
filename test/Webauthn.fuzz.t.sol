@@ -2,10 +2,10 @@
 pragma solidity ^0.8.0;
 
 import {FCL_ecdsa} from "FreshCryptoLib/FCL_ecdsa.sol";
+import {Test, Vm, console, stdJson} from "forge-std/Test.sol";
 
 import {WebAuthn} from "../src/WebAuthn.sol";
 
-import "forge-std/Test.sol";
 import "./Utils.sol";
 
 contract WebAuthnFuzzTest is Test {
@@ -114,7 +114,8 @@ contract WebAuthnFuzzTest is Test {
                 y: y
             });
 
-            // Assert the verification failed because user verification was required but not performed by the authenticator.
+            // Assert the verification failed because user verification was required but not performed by the
+            // authenticator.
             assertEq(res, false, string.concat("Failed on ", jsonCaseSelector));
 
             console.log("------------------------------------");
@@ -174,9 +175,7 @@ contract WebAuthnFuzzTest is Test {
         webAuthnAuth = WebAuthn.WebAuthnAuth({
             authenticatorData: abi.decode(json.parseRaw(string.concat(jsonCaseSelector, ".authenticator_data")), (bytes)),
             clientDataJSON: abi.decode(json.parseRaw(string.concat(jsonCaseSelector, ".client_data_json.json")), (string)),
-            challengeIndex: abi.decode(
-                json.parseRaw(string.concat(jsonCaseSelector, ".client_data_json.challenge_index")), (uint256)
-                ),
+            challengeIndex: abi.decode(json.parseRaw(string.concat(jsonCaseSelector, ".client_data_json.challenge_index")), (uint256)),
             typeIndex: abi.decode(json.parseRaw(string.concat(jsonCaseSelector, ".client_data_json.type_index")), (uint256)),
             r: abi.decode(json.parseRaw(string.concat(jsonCaseSelector, ".r")), (uint256)),
             s: abi.decode(json.parseRaw(string.concat(jsonCaseSelector, ".s")), (uint256))

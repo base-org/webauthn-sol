@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {Base64Url} from "FreshCryptoLib/utils/Base64Url.sol";
 import {FCL_Elliptic_ZZ} from "FreshCryptoLib/FCL_elliptic.sol";
+import {Base64Url} from "FreshCryptoLib/utils/Base64Url.sol";
 
 struct WebAuthnInfo {
     bytes authenticatorData;
@@ -17,9 +17,7 @@ library Utils {
         string memory challengeb64url = Base64Url.encode(abi.encode(challenge));
         string memory clientDataJSON = string(
             abi.encodePacked(
-                '{"type":"webauthn.get","challenge":"',
-                challengeb64url,
-                '","origin":"https://sign.coinbase.com","crossOrigin":false}'
+                '{"type":"webauthn.get","challenge":"', challengeb64url, '","origin":"https://sign.coinbase.com","crossOrigin":false}'
             )
         );
 

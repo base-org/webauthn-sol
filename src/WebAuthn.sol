@@ -113,7 +113,7 @@ library WebAuthn {
         }
 
         // 11. Verify that the value of C.type is the string webauthn.get.
-        // bytes("type":"webauthn.get").length = 21
+        //     bytes("type":"webauthn.get").length = 21
         string memory _type = webAuthnAuth.clientDataJSON.slice(webAuthnAuth.typeIndex, webAuthnAuth.typeIndex + 21);
         if (keccak256(bytes(_type)) != _EXPECTED_TYPE_HASH) {
             return false;
@@ -121,9 +121,8 @@ library WebAuthn {
 
         // 12. Verify that the value of C.challenge equals the base64url encoding of options.challenge.
         bytes memory expectedChallenge = bytes(string.concat('"challenge":"', Base64.encodeURL(challenge), '"'));
-        string memory actualChallenge = webAuthnAuth.clientDataJSON.slice(
-            webAuthnAuth.challengeIndex, webAuthnAuth.challengeIndex + expectedChallenge.length
-        );
+        string memory actualChallenge =
+            webAuthnAuth.clientDataJSON.slice(webAuthnAuth.challengeIndex, webAuthnAuth.challengeIndex + expectedChallenge.length);
         if (keccak256(bytes(actualChallenge)) != keccak256(expectedChallenge)) {
             return false;
         }
@@ -135,7 +134,8 @@ library WebAuthn {
             return false;
         }
 
-        // 17. If user verification is required for this assertion, verify that the User Verified bit of the flags in authData is set.
+        // 17. If user verification is required for this assertion, verify that the User Verified bit of the flags in
+        //     authData is set.
         if (requireUV && (webAuthnAuth.authenticatorData[32] & _AUTH_DATA_FLAGS_UV) != _AUTH_DATA_FLAGS_UV) {
             return false;
         }
@@ -145,7 +145,8 @@ library WebAuthn {
         // 19. Let hash be the result of computing a hash over the cData using SHA-256.
         bytes32 clientDataJSONHash = sha256(bytes(webAuthnAuth.clientDataJSON));
 
-        // 20. Using credentialPublicKey, verify that sig is a valid signature over the binary concatenation of authData and hash.
+        // 20. Using credentialPublicKey, verify that sig is a valid signature over the binary concatenation of authData
+        //     and hash.
         bytes32 messageHash = sha256(abi.encodePacked(webAuthnAuth.authenticatorData, clientDataJSONHash));
         bytes memory args = abi.encode(messageHash, webAuthnAuth.r, webAuthnAuth.s, x, y);
         // try the RIP-7212 precompile address
