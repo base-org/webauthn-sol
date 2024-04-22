@@ -40,3 +40,8 @@ jobs:
         run: |
           forge fmt --check
         id: fmt
+
+      - name: Check snapshot
+        run: |
+          forge snapshot --check
+        id: snapshot
