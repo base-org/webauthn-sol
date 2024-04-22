@@ -2,11 +2,11 @@
 pragma solidity ^0.8.0;
 
 import {FCL_ecdsa} from "FreshCryptoLib/FCL_ecdsa.sol";
+import {Test, Vm, console, stdJson} from "forge-std/Test.sol";
 
 import {WebAuthn} from "../src/WebAuthn.sol";
 
 import "./Utils.sol";
-import "forge-std/Test.sol";
 
 contract WebAuthnFuzzTest is Test {
     using stdJson for string;
