@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {WebAuthn} from "../src/WebAuthn.sol";
 import {Base64Url} from "FreshCryptoLib/utils/Base64Url.sol";
 import {Test, console2} from "forge-std/Test.sol";
+
+import {WebAuthn} from "../src/WebAuthn.sol";
 
 contract WebAuthnTest is Test {
     bytes challenge = abi.encode(0xf631058a3ba1116acce12396fad0a125b5041c43f8e15723709f81aa8d5f4ccf);
