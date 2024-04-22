@@ -17,9 +17,7 @@ library Utils {
         string memory challengeb64url = Base64Url.encode(abi.encode(challenge));
         string memory clientDataJSON = string(
             abi.encodePacked(
-                '{"type":"webauthn.get","challenge":"',
-                challengeb64url,
-                '","origin":"https://sign.coinbase.com","crossOrigin":false}'
+                '{"type":"webauthn.get","challenge":"', challengeb64url, '","origin":"https://sign.coinbase.com","crossOrigin":false}'
             )
         );
 

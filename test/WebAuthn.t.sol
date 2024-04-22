@@ -30,9 +30,7 @@ contract WebAuthnTest is Test {
         WebAuthn.WebAuthnAuth memory auth = WebAuthn.WebAuthnAuth({
             authenticatorData: hex"49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d9763050000010a",
             clientDataJSON: string.concat(
-                '{"type":"webauthn.get","challenge":"',
-                Base64Url.encode(challenge),
-                '","origin":"http://localhost:3005","crossOrigin":false}'
+                '{"type":"webauthn.get","challenge":"', Base64Url.encode(challenge), '","origin":"http://localhost:3005","crossOrigin":false}'
             ),
             challengeIndex: 23,
             typeIndex: 1,

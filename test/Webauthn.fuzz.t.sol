@@ -175,9 +175,7 @@ contract WebAuthnFuzzTest is Test {
         webAuthnAuth = WebAuthn.WebAuthnAuth({
             authenticatorData: abi.decode(json.parseRaw(string.concat(jsonCaseSelector, ".authenticator_data")), (bytes)),
             clientDataJSON: abi.decode(json.parseRaw(string.concat(jsonCaseSelector, ".client_data_json.json")), (string)),
-            challengeIndex: abi.decode(
-                json.parseRaw(string.concat(jsonCaseSelector, ".client_data_json.challenge_index")), (uint256)
-            ),
+            challengeIndex: abi.decode(json.parseRaw(string.concat(jsonCaseSelector, ".client_data_json.challenge_index")), (uint256)),
             typeIndex: abi.decode(json.parseRaw(string.concat(jsonCaseSelector, ".client_data_json.type_index")), (uint256)),
             r: abi.decode(json.parseRaw(string.concat(jsonCaseSelector, ".r")), (uint256)),
             s: abi.decode(json.parseRaw(string.concat(jsonCaseSelector, ".s")), (uint256))
