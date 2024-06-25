@@ -109,7 +109,7 @@ library WebAuthn {
     {
         if (webAuthnAuth.s > _P256_N_DIV_2) {
             // guard against signature malleability
-            return false;
+            webAuthnAuth.s = FCL_Elliptic_ZZ.n - webAuthnAuth.s;
         }
 
         // 11. Verify that the value of C.type is the string webauthn.get.
